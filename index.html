@@ -224,7 +224,7 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
     </a>
     <div class="nav-links">
       <a href="#how-it-works">How It Works</a>
-      <a href="#upsell">Pricing</a>
+      <a href="pricing.html">Pricing</a>
       <a href="#">FAQ</a>
       <a href="#">Blog</a>
       <button class="btn-nav-in">Sign In</button>
@@ -303,8 +303,8 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
     <!-- Usage -->
     <div class="usage-row">
       <div>
-        <div class="usage-num"><em id="used-count">0</em>/20</div>
-        <div class="usage-sub">images queued</div>
+        <div class="usage-num"><em id="used-count">0</em>/3</div>
+        <div class="usage-sub">free images today</div>
       </div>
       <div class="usage-track"><div class="usage-fill" id="usage-fill"></div></div>
       <a href="#upsell" class="usage-cta">Sign up for more →</a>
@@ -344,11 +344,11 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
       <p>Get more from CleanSlate with a Pro account</p>
     </div>
     <div class="upsell-feats">
-      <div class="uf"><span class="uf-icon">⚡</span><div class="uf-title">Batch Processing</div><div class="uf-desc">Process up to 100 images at once</div></div>
-      <div class="uf"><span class="uf-icon">🔢</span><div class="uf-title">Higher Limits</div><div class="uf-desc">500 images/day vs 20 for free</div></div>
-      <div class="uf"><span class="uf-icon">🚀</span><div class="uf-title">Priority Processing</div><div class="uf-desc">Faster results, no waiting</div></div>
+      <div class="uf"><span class="uf-icon">⚡</span><div class="uf-title">Batch Processing</div><div class="uf-desc">Process up to 50 images at once</div></div>
+      <div class="uf"><span class="uf-icon">🔢</span><div class="uf-title">Higher Limits</div><div class="uf-desc">50 images/day vs 3 for free</div></div>
+      <div class="uf"><span class="uf-icon">🚀</span><div class="uf-title">Just $1/month</div><div class="uf-desc">Cancel anytime, no commitment</div></div>
     </div>
-    <div class="upsell-cta"><a href="#" class="btn-upgrade">View Pricing Plans →</a></div>
+    <div class="upsell-cta"><a href="pricing.html" class="btn-upgrade">View Pricing Plans →</a></div>
   </div>
 
 </div>
@@ -467,7 +467,7 @@ dz.addEventListener('drop', e => {
 
 function addFiles(files) {
   for (const f of files) {
-    if (queue.length >= 20) { toast('Max 20 images at once', 'err'); break; }
+    if (queue.length >= 3) { toast('Free limit: 3 images/day — upgrade to Pro for 50/day', 'err'); break; }
     queue.push({ file: f, id: ++idc, status: 'waiting', resultBlob: null, report: null });
   }
   renderQueue();
@@ -478,7 +478,7 @@ function addFiles(files) {
 function updateUsage() {
   const n = queue.length;
   document.getElementById('used-count').textContent = n;
-  document.getElementById('usage-fill').style.width = Math.min(100, (n / 20) * 100) + '%';
+  document.getElementById('usage-fill').style.width = Math.min(100, (n / 3) * 100) + '%';
 }
 
 function renderQueue() {

@@ -192,10 +192,58 @@ nav { position: sticky; top: 0; z-index: 100; backdrop-filter: blur(18px); -webk
 .btn-upgrade:hover { transform: translateY(-1px); box-shadow: 0 6px 26px rgba(245,158,11,0.45); }
 
 /* TOAST */
-.toast { position:fixed; bottom:24px; right:24px; background:var(--surface2); border:1px solid var(--border); border-radius:var(--rsm); padding:11px 16px; font-size:0.8rem; color:var(--text); box-shadow:0 8px 32px rgba(0,0,0,0.5); transform:translateY(80px); opacity:0; transition:all .3s; z-index:200; max-width:300px; }
+.toast { position:fixed; bottom:24px; right:24px; background:var(--surface2); border:1px solid var(--border); border-radius:var(--rsm); padding:11px 16px; font-size:0.8rem; color:var(--text); box-shadow:0 8px 32px rgba(0,0,0,0.5); transform:translateY(80px); opacity:0; transition:all .3s; z-index:600; max-width:300px; }
 .toast.show { transform:translateY(0); opacity:1; }
 .toast.tok  { border-color:rgba(52,211,153,0.5); color:var(--success); }
 .toast.terr { border-color:rgba(248,113,113,0.5); color:var(--danger); }
+
+/* AUTH MODAL */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); z-index:500; display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; pointer-events:none; transition:opacity .25s; }
+.modal-overlay.show { opacity:1; pointer-events:all; }
+.auth-modal { background:var(--surface); border:1px solid var(--border2); border-radius:20px; width:100%; max-width:400px; overflow:hidden; transform:translateY(20px); transition:transform .25s; box-shadow:0 32px 80px rgba(0,0,0,0.6); }
+.modal-overlay.show .auth-modal { transform:translateY(0); }
+.auth-modal-header { padding:24px 24px 0; display:flex; align-items:center; justify-content:space-between; }
+.auth-modal-title { font-size:1.1rem; font-weight:700; color:var(--text); }
+.auth-modal-close { background:none; border:none; color:var(--muted); cursor:pointer; font-size:1.2rem; line-height:1; padding:4px; transition:color .2s; }
+.auth-modal-close:hover { color:var(--text); }
+.auth-modal-body { padding:20px 24px 28px; }
+.auth-tabs { display:flex; gap:0; margin-bottom:22px; background:var(--surface2); border-radius:var(--rsm); padding:3px; }
+.auth-tab { flex:1; padding:7px; text-align:center; font-size:0.82rem; font-weight:600; color:var(--muted); cursor:pointer; border-radius:6px; border:none; background:none; font-family:'Outfit',sans-serif; transition:all .2s; }
+.auth-tab.active { background:var(--surface3); color:var(--text); box-shadow:0 1px 4px rgba(0,0,0,0.3); }
+.auth-field { margin-bottom:14px; }
+.auth-field label { display:block; font-size:0.75rem; font-weight:500; color:var(--text2); margin-bottom:5px; }
+.auth-input { width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--rsm); padding:10px 12px; color:var(--text); font-family:'Outfit',sans-serif; font-size:0.88rem; outline:none; transition:border-color .2s; }
+.auth-input:focus { border-color:var(--accent); }
+.auth-input::placeholder { color:var(--muted); }
+.btn-auth-submit { width:100%; padding:12px; background:linear-gradient(135deg,#6d28d9,#a78bfa); border:none; border-radius:var(--rsm); color:#fff; font-family:'Outfit',sans-serif; font-size:0.92rem; font-weight:700; cursor:pointer; transition:all .2s; box-shadow:0 4px 16px rgba(109,40,217,0.4); margin-top:4px; }
+.btn-auth-submit:hover { transform:translateY(-1px); box-shadow:0 6px 22px rgba(109,40,217,0.5); }
+.btn-auth-submit:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+.auth-divider { display:flex; align-items:center; gap:10px; margin:16px 0; }
+.auth-divider::before, .auth-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+.auth-divider span { font-size:0.72rem; color:var(--muted); }
+.btn-google { width:100%; padding:11px; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--rsm); color:var(--text); font-family:'Outfit',sans-serif; font-size:0.88rem; font-weight:600; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px; }
+.btn-google:hover { border-color:var(--accent); background:rgba(167,139,250,0.06); }
+.btn-google svg { width:18px; height:18px; flex-shrink:0; }
+.auth-error { background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:6px; padding:8px 12px; font-size:0.78rem; color:var(--danger); margin-bottom:14px; display:none; }
+.auth-error.show { display:block; }
+.auth-footer-note { text-align:center; font-size:0.72rem; color:var(--muted); margin-top:14px; }
+
+/* USER AVATAR in nav */
+.nav-user { display:flex; align-items:center; gap:8px; cursor:pointer; position:relative; }
+.nav-avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#6d28d9,#a78bfa); display:flex; align-items:center; justify-content:center; font-size:0.78rem; font-weight:700; color:#fff; border:2px solid rgba(167,139,250,0.4); flex-shrink:0; overflow:hidden; }
+.nav-avatar img { width:100%; height:100%; object-fit:cover; }
+.nav-user-name { font-size:0.82rem; font-weight:500; color:var(--text2); max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.nav-user-menu { position:absolute; top:calc(100% + 10px); right:0; background:var(--surface); border:1px solid var(--border2); border-radius:var(--radius); padding:6px; min-width:180px; box-shadow:0 12px 40px rgba(0,0,0,0.4); z-index:300; display:none; }
+.nav-user-menu.open { display:block; }
+.nav-user-menu-item { padding:8px 12px; font-size:0.82rem; color:var(--text2); border-radius:6px; cursor:pointer; transition:all .2s; }
+.nav-user-menu-item:hover { background:rgba(255,255,255,0.05); color:var(--text); }
+.nav-user-menu-item.danger:hover { background:rgba(248,113,113,0.1); color:var(--danger); }
+.nav-user-menu-sep { height:1px; background:var(--border); margin:4px 0; }
+.nav-user-pro-badge { display:inline-flex; align-items:center; gap:4px; background:rgba(245,158,11,0.15); color:var(--accent2); border:1px solid rgba(245,158,11,0.3); border-radius:99px; padding:1px 7px; font-size:0.62rem; font-weight:700; letter-spacing:0.04em; }
+
+/* Pro locked overlay on batch */
+.pro-lock { display:none; }
+.pro-lock.show { display:flex; align-items:center; gap:6px; font-size:0.75rem; color:var(--accent2); background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:6px; padding:6px 12px; margin:0 22px 12px; }
 
 footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:20px 24px 48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:0.7rem; color:var(--muted); }
 
@@ -227,8 +275,28 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
       <a href="pricing.html">Pricing</a>
       <a href="#">FAQ</a>
       <a href="#">Blog</a>
-      <button class="btn-nav-in">Sign In</button>
-      <button class="btn-nav-reg">⚡ Register</button>
+      <!-- Logged OUT state -->
+      <div id="nav-auth-out" style="display:flex;align-items:center;gap:4px;">
+        <button class="btn-nav-in" onclick="openAuth('signin')">Sign In</button>
+        <button class="btn-nav-reg" onclick="openAuth('register')">⚡ Register</button>
+      </div>
+      <!-- Logged IN state -->
+      <div id="nav-auth-in" style="display:none">
+        <div class="nav-user" id="nav-user" onclick="toggleUserMenu()">
+          <div class="nav-avatar" id="nav-avatar">?</div>
+          <span class="nav-user-name" id="nav-user-name">Account</span>
+          <div class="nav-user-menu" id="user-menu">
+            <div style="padding:8px 12px 6px">
+              <div style="font-size:0.78rem;font-weight:600;color:var(--text)" id="menu-email"></div>
+              <div id="menu-plan-badge" style="margin-top:4px"></div>
+            </div>
+            <div class="nav-user-menu-sep"></div>
+            <div class="nav-user-menu-item" onclick="window.location.href='pricing.html'">⚡ Upgrade to Pro</div>
+            <div class="nav-user-menu-sep"></div>
+            <div class="nav-user-menu-item danger" onclick="signOutUser()">Sign Out</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </nav>
@@ -300,14 +368,17 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
       <div class="chip"><svg viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>Image Fingerprint</div>
     </div>
 
+    <!-- Pro lock notice for batch -->
+    <div class="pro-lock" id="pro-lock">🔒 Batch processing is a Pro feature — <a href="pricing.html" style="color:var(--accent2);margin-left:4px">Upgrade for $1/mo →</a></div>
+
     <!-- Usage -->
     <div class="usage-row">
       <div>
-        <div class="usage-num"><em id="used-count">0</em>/3</div>
-        <div class="usage-sub">free images today</div>
+        <div class="usage-num"><em id="used-count">0</em>/<span id="daily-limit">3</span></div>
+        <div class="usage-sub" id="usage-sub-label">free images today</div>
       </div>
       <div class="usage-track"><div class="usage-fill" id="usage-fill"></div></div>
-      <a href="#upsell" class="usage-cta">Sign up for more →</a>
+      <a href="pricing.html" class="usage-cta" id="usage-cta">Sign up for more →</a>
     </div>
 
     <!-- Progress -->
@@ -360,317 +431,322 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
 
 <div class="toast" id="toast"></div>
 
-<script>
-// ═══════════════════════════════════════════════════════════════
-//  CORE IMAGE PROCESSING — Pure browser, no server needed
-// ═══════════════════════════════════════════════════════════════
-
-/**
- * Strip all metadata from an image by drawing through Canvas.
- * Canvas re-encodes the image from scratch, discarding all metadata chunks.
- */
-async function stripViaCanvas(file, outFormat, quality, pixelMod, noiseStrength) {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const canvas = document.createElement('canvas');
-      canvas.width  = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext('2d');
-
-      // Draw image — this strips ALL metadata (EXIF, XMP, IPTC, C2PA, ICC, comments)
-      ctx.drawImage(img, 0, 0);
-
-      // ── Pixel fingerprint modification ──────────────────────────────────
-      if (pixelMod && noiseStrength > 0) {
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        // Apply sparse random pixel noise — ±noiseStrength on RGB channels
-        // Modify ~8% of pixels (enough to change hash, invisible to eye)
-        const step = Math.max(1, Math.floor(1 / 0.08));
-        for (let i = 0; i < data.length; i += 4 * step) {
-          const r = (Math.random() * 2 - 1) * noiseStrength | 0;
-          data[i]   = Math.max(0, Math.min(255, data[i]   + r));
-          data[i+1] = Math.max(0, Math.min(255, data[i+1] + ((Math.random() * 2 - 1) * noiseStrength | 0)));
-          data[i+2] = Math.max(0, Math.min(255, data[i+2] + ((Math.random() * 2 - 1) * noiseStrength | 0)));
-          // Alpha unchanged
-        }
-        ctx.putImageData(imageData, 0, 0);
-      }
-
-      // ── Re-encode as clean image ─────────────────────────────────────────
-      const mimeType = outFormat === 'png'  ? 'image/png'  :
-                       outFormat === 'webp' ? 'image/webp' : 'image/jpeg';
-
-      canvas.toBlob(blob => {
-        if (!blob) { reject(new Error('Canvas encoding failed')); return; }
-        resolve({ blob, mimeType, width: canvas.width, height: canvas.height });
-      }, mimeType, quality);
-    };
-
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not load image')); };
-    img.src = url;
-  });
-}
-
-// ── Detect what metadata is likely present in a file ─────────────────────
-function sniffMetadata(file) {
-  const name = file.name.toLowerCase();
-  const tags = [];
-
-  // JPEG always has APP markers potentially
-  if (file.type === 'image/jpeg' || name.endsWith('.jpg') || name.endsWith('.jpeg')) {
-    tags.push('EXIF / GPS (JPEG APP1)');
-    tags.push('XMP (JPEG APP1/APP2)');
-    tags.push('JFIF / IPTC markers');
-  }
-  if (file.type === 'image/png' || name.endsWith('.png')) {
-    tags.push('PNG tEXt / iTXt chunks');
-    tags.push('PNG zTXt (SD parameters)');
-    tags.push('PNG eXIf chunk');
-  }
-  if (file.type === 'image/webp' || name.endsWith('.webp')) {
-    tags.push('WebP EXIF / XMP chunks');
-  }
-
-  tags.push('C2PA / Content Credentials');
-  tags.push('AI generator signatures');
-  tags.push('Image hash / fingerprint');
-  return tags;
-}
-
-// ════════════════════════════════════════════════════════════════
-//  UI STATE
-// ════════════════════════════════════════════════════════════════
-
-let queue = [], idc = 0;
-
-// ── Settings ──────────────────────────────────────────────────
-document.getElementById('strength').addEventListener('input', e => {
-  document.getElementById('strength-val').textContent = e.target.value;
-});
-
-// ── Drop zone ──────────────────────────────────────────────────
-const dz = document.getElementById('dropzone');
-const fi = document.getElementById('file-input');
-dz.addEventListener('click', () => fi.click());
-fi.addEventListener('change', e => addFiles(Array.from(e.target.files)));
-dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
-dz.addEventListener('drop', e => {
-  e.preventDefault(); dz.classList.remove('drag-over');
-  addFiles(Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')));
-});
-
-function addFiles(files) {
-  for (const f of files) {
-    if (queue.length >= 3) { toast('Free limit: 3 images/day — upgrade to Pro for 50/day', 'err'); break; }
-    queue.push({ file: f, id: ++idc, status: 'waiting', resultBlob: null, report: null });
-  }
-  renderQueue();
-  updateUsage();
-  document.getElementById('btn-process').disabled = queue.length === 0;
-}
-
-function updateUsage() {
-  const n = queue.length;
-  document.getElementById('used-count').textContent = n;
-  document.getElementById('usage-fill').style.width = Math.min(100, (n / 3) * 100) + '%';
-}
-
-function renderQueue() {
-  const grid = document.getElementById('image-grid');
-  const sec  = document.getElementById('queue-section');
-  sec.style.display = queue.length ? 'block' : 'none';
-  document.getElementById('queue-count').textContent = `(${queue.length})`;
-  grid.innerHTML = '';
-  for (const item of queue) {
-    const url = URL.createObjectURL(item.file);
-    const sz  = (item.file.size / 1024).toFixed(0);
-    const card = document.createElement('div');
-    card.className = 'img-card'; card.id = `card-${item.id}`;
-    const [bc, bt] = sb(item.status);
-    card.innerHTML = `
-      <img class="img-thumb" src="${url}" alt="">
-      <span class="cbadge ${bc}">${bt}</span>
-      <div class="img-body">
-        <div class="img-name" title="${item.file.name}">${item.file.name}</div>
-        <div class="img-meta">${sz} KB · ${(item.file.type.split('/')[1] || '').toUpperCase()}</div>
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-modal" onclick="closeAuthModal(event)">
+  <div class="auth-modal">
+    <div class="auth-modal-header">
+      <span class="auth-modal-title" id="auth-modal-title">Welcome back</span>
+      <button class="auth-modal-close" onclick="closeAuthModalDirect()">✕</button>
+    </div>
+    <div class="auth-modal-body">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+        <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</button>
       </div>
-      <button class="btn-dl-card" ${item.status !== 'done' ? 'disabled' : ''} onclick="dlSingle(${item.id})">↓ Download</button>`;
-    grid.appendChild(card);
-  }
-}
+      <div class="auth-error" id="auth-error"></div>
 
-function sb(s) {
-  return s === 'waiting'    ? ['cb-w', 'Ready']     :
-         s === 'processing' ? ['cb-p', 'Cleaning…'] :
-         s === 'done'       ? ['cb-d', 'Clean ✓']   :
-                              ['cb-e', 'Error'];
-}
+      <!-- Google -->
+      <button class="btn-google" onclick="signInWithGoogle()">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
 
-function updCard(id, status) {
-  const card = document.getElementById(`card-${id}`);
-  if (!card) return;
-  const [bc, bt] = sb(status);
-  const sp = card.querySelector('.cbadge');
-  sp.className = `cbadge ${bc}`; sp.textContent = bt;
-  card.querySelector('.btn-dl-card').disabled = status !== 'done';
-}
+      <div class="auth-divider"><span>or</span></div>
 
-// ── Process ────────────────────────────────────────────────────
-document.getElementById('btn-process').addEventListener('click', processImages);
-document.getElementById('btn-clear').addEventListener('click', () => {
-  queue = []; renderQueue(); updateUsage();
-  document.getElementById('report-section').style.display = 'none';
-  document.getElementById('report-list').innerHTML = '';
-  document.getElementById('btn-process').disabled = true;
-  setProg(0, false); setLabel('');
-});
+      <!-- Email form -->
+      <div class="auth-field">
+        <label>Email address</label>
+        <input class="auth-input" type="email" id="auth-email" placeholder="you@example.com">
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input class="auth-input" type="password" id="auth-password" placeholder="Min. 6 characters">
+      </div>
+      <div class="auth-field" id="field-name" style="display:none">
+        <label>Your name</label>
+        <input class="auth-input" type="text" id="auth-name" placeholder="First name">
+      </div>
 
-function setProg(p, on = true) {
-  document.getElementById('prog-wrap').classList.toggle('on', on);
-  document.getElementById('prog-bar').style.width = p + '%';
-}
-function setLabel(t) { document.getElementById('prog-label').textContent = t; }
-
-async function processImages() {
-  const pixelMod    = document.getElementById('toggle-pixel').checked;
-  const strength    = parseInt(document.getElementById('strength').value);
-  const quality     = parseFloat(document.getElementById('quality').value);
-  const outFormat   = document.getElementById('out-format').value;
-  const btn         = document.getElementById('btn-process');
-
-  btn.disabled = true;
-  setProg(0, true);
-  setLabel('Starting…');
-
-  let done = 0;
-  for (const item of queue) {
-    item.status = 'processing';
-    updCard(item.id, 'processing');
-    setLabel(`Processing ${item.file.name} (${done + 1}/${queue.length})`);
-
-    try {
-      const origSize = item.file.size;
-      const { blob, mimeType, width, height } = await stripViaCanvas(
-        item.file, outFormat, quality, pixelMod, strength
-      );
-
-      item.status     = 'done';
-      item.resultBlob = blob;
-      item.mimeType   = mimeType;
-      item.report = {
-        filename:        item.file.name,
-        format:          outFormat.toUpperCase(),
-        dimensions:      `${width} × ${height}`,
-        original_size:   origSize,
-        output_size:     blob.size,
-        size_change_pct: ((blob.size - origSize) / origSize * 100).toFixed(1),
-        pixel_modified:  pixelMod,
-        noise_strength:  pixelMod ? strength : 0,
-        metadata_stripped: sniffMetadata(item.file)
-      };
-
-      updCard(item.id, 'done');
-      addReport(item.report, item.id);
-    } catch (err) {
-      item.status = 'error';
-      updCard(item.id, 'error');
-      console.error(err);
-    }
-
-    done++;
-    setProg(Math.round((done / queue.length) * 100));
-  }
-
-  renderQueue();
-  setProg(100, true);
-  setTimeout(() => { setProg(0, false); setLabel(''); }, 900);
-  btn.disabled = false;
-  document.getElementById('report-section').style.display = 'block';
-  const succeeded = queue.filter(i => i.status === 'done').length;
-  toast(`✓ ${succeeded} image${succeeded !== 1 ? 's' : ''} cleaned!`, 'ok');
-}
-
-// ── Download ───────────────────────────────────────────────────
-function dlSingle(id) {
-  const item = queue.find(i => i.id === id);
-  if (!item?.resultBlob) return;
-  const ext = item.mimeType.split('/')[1] === 'jpeg' ? 'jpg' : item.mimeType.split('/')[1];
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(item.resultBlob);
-  a.download = `clean_${item.file.name.replace(/\.[^.]+$/, '')}.${ext}`;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-}
-
-document.getElementById('btn-download-all').addEventListener('click', async () => {
-  const done = queue.filter(i => i.status === 'done');
-  if (!done.length) return;
-  for (const item of done) {
-    const ext = (item.mimeType || 'image/jpeg').split('/')[1] === 'jpeg' ? 'jpg' : (item.mimeType || '').split('/')[1];
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(item.resultBlob);
-    a.download = `clean_${item.file.name.replace(/\.[^.]+$/, '')}.${ext || 'jpg'}`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    await new Promise(r => setTimeout(r, 150));
-  }
-});
-
-// ── Reports ────────────────────────────────────────────────────
-function addReport(r) {
-  const list = document.getElementById('report-list');
-  const card = document.createElement('div');
-  card.className = 'rep-card';
-  const stripped = r.metadata_stripped || [];
-  const pct = parseFloat(r.size_change_pct);
-  const sizeLabel = pct < 0 ? `${Math.abs(pct)}% smaller` : pct > 0 ? `${pct}% larger` : 'same size';
-  const sizeBadgeClass = pct < 0 ? 'b-g' : 'b-a';
-
-  card.innerHTML = `
-    <div class="rep-hd" onclick="togRep(this)">
-      <span class="rep-fn">${r.filename}</span>
-      <div class="badges">
-        <span class="badge b-g">✓ Cleaned</span>
-        ${r.pixel_modified ? '<span class="badge b-v">Fingerprint modified</span>' : ''}
-        <span class="badge ${sizeBadgeClass}">${sizeLabel}</span>
+      <button class="btn-auth-submit" id="btn-auth-submit" onclick="submitAuth()">Sign In</button>
+      <div class="auth-footer-note" id="auth-footer-note">
+        Don't have an account? <span style="color:var(--accent);cursor:pointer" onclick="switchTab('register')">Register free</span>
       </div>
     </div>
-    <div class="rep-bd">
-      <div class="rep-row"><span class="rep-k">Output format</span><span class="rep-v">${r.format}</span></div>
-      <div class="rep-row"><span class="rep-k">Dimensions</span><span class="rep-v">${r.dimensions}</span></div>
-      <div class="rep-row"><span class="rep-k">Original size</span><span class="rep-v">${(r.original_size/1024).toFixed(1)} KB</span></div>
-      <div class="rep-row"><span class="rep-k">Output size</span><span class="rep-v ok">${(r.output_size/1024).toFixed(1)} KB</span></div>
-      <div class="rep-row"><span class="rep-k">Pixel fingerprint</span><span class="rep-v ${r.pixel_modified?'ok':''}">${r.pixel_modified ? `Modified (noise ±${r.noise_strength})` : 'Unchanged'}</span></div>
-      <div class="rep-row" style="flex-direction:column;gap:6px">
-        <span class="rep-k">Metadata wiped</span>
-        <div class="stripped-list">
-          ${stripped.map(s => `<span class="stripped-tag">✗ ${s}</span>`).join('')}
-        </div>
-      </div>
-    </div>`;
-  list.appendChild(card);
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+         signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged,
+         updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, increment }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ── Firebase config ────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyACY8gDd419FvuBWkrAySgceAQr4F0JEVA",
+  authDomain: "cleanslate-229bc.firebaseapp.com",
+  projectId: "cleanslate-229bc",
+  storageBucket: "cleanslate-229bc.firebasestorage.app",
+  messagingSenderId: "397090729404",
+  appId: "1:397090729404:web:9665baa2436a34e7bc4fb9",
+  measurementId: "G-5TX3KQY5V5"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const googleProvider = new GoogleAuthProvider();
+
+// ── State ──────────────────────────────────────────────────────
+let currentUser = null;
+let userPlan    = 'free'; // 'free' | 'pro'
+let usedToday   = 0;
+const FREE_LIMIT = 3;
+const PRO_LIMIT  = 50;
+
+// ── Auth state listener ────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+  if (user) {
+    await loadUserData(user);
+    renderNavLoggedIn(user);
+  } else {
+    renderNavLoggedOut();
+    resetToFree();
+  }
+});
+
+async function loadUserData(user) {
+  const ref  = doc(db, 'users', user.uid);
+  const snap = await getDoc(ref);
+  const today = new Date().toISOString().split('T')[0];
+
+  if (!snap.exists()) {
+    // New user — create doc
+    await setDoc(ref, {
+      email: user.email,
+      displayName: user.displayName || '',
+      plan: 'free',
+      usageDate: today,
+      usageCount: 0,
+      createdAt: new Date().toISOString()
+    });
+    userPlan   = 'free';
+    usedToday  = 0;
+  } else {
+    const data = snap.data();
+    userPlan   = data.plan || 'free';
+    // Reset count if new day
+    if (data.usageDate !== today) {
+      await updateDoc(ref, { usageDate: today, usageCount: 0 });
+      usedToday = 0;
+    } else {
+      usedToday = data.usageCount || 0;
+    }
+  }
+  updateUsageUI();
 }
 
-function togRep(hd) {
-  hd.classList.toggle('open');
-  hd.nextElementSibling.classList.toggle('open');
+async function incrementUsage() {
+  if (!currentUser) {
+    usedToday++;
+    localStorage.setItem('cs_used_' + new Date().toISOString().split('T')[0], usedToday);
+    updateUsageUI();
+    return;
+  }
+  usedToday++;
+  const ref = doc(db, 'users', currentUser.uid);
+  await updateDoc(ref, { usageCount: increment(1) });
+  updateUsageUI();
 }
 
-// ── Toast ──────────────────────────────────────────────────────
-let _tt;
-function toast(msg, type = '') {
-  const el = document.getElementById('toast');
+function getLimit() { return (currentUser && userPlan === 'pro') ? PRO_LIMIT : FREE_LIMIT; }
+
+function updateUsageUI() {
+  const limit = getLimit();
+  document.getElementById('used-count').textContent = usedToday;
+  document.getElementById('daily-limit').textContent = limit;
+  document.getElementById('usage-fill').style.width = Math.min(100, (usedToday / limit) * 100) + '%';
+
+  if (currentUser && userPlan === 'pro') {
+    document.getElementById('usage-sub-label').textContent = 'pro images today';
+    document.getElementById('usage-cta').style.display = 'none';
+    document.getElementById('pro-lock').classList.remove('show');
+  } else {
+    document.getElementById('usage-sub-label').textContent = 'free images today';
+    document.getElementById('usage-cta').style.display = '';
+    document.getElementById('pro-lock').classList.add('show');
+  }
+}
+
+function resetToFree() {
+  userPlan  = 'free';
+  const today = new Date().toISOString().split('T')[0];
+  usedToday = parseInt(localStorage.getItem('cs_used_' + today) || '0');
+  updateUsageUI();
+}
+
+// ── Nav rendering ──────────────────────────────────────────────
+function renderNavLoggedIn(user) {
+  document.getElementById('nav-auth-out').style.display = 'none';
+  document.getElementById('nav-auth-in').style.display  = 'block';
+
+  const name    = user.displayName || user.email.split('@')[0];
+  const initials = name.charAt(0).toUpperCase();
+  document.getElementById('nav-user-name').textContent = name;
+  document.getElementById('menu-email').textContent    = user.email;
+
+  const avatarEl = document.getElementById('nav-avatar');
+  if (user.photoURL) {
+    avatarEl.innerHTML = `<img src="${user.photoURL}" alt="">`;
+  } else {
+    avatarEl.textContent = initials;
+  }
+
+  const planBadge = document.getElementById('menu-plan-badge');
+  planBadge.innerHTML = userPlan === 'pro'
+    ? '<span class="nav-user-pro-badge">⚡ Pro</span>'
+    : '<span style="font-size:0.7rem;color:var(--muted)">Free plan</span>';
+}
+
+function renderNavLoggedOut() {
+  document.getElementById('nav-auth-out').style.display = 'flex';
+  document.getElementById('nav-auth-in').style.display  = 'none';
+}
+
+// ── Auth modal ─────────────────────────────────────────────────
+let authMode = 'signin';
+
+window.openAuth = function(mode) {
+  authMode = mode || 'signin';
+  switchTab(authMode);
+  document.getElementById('auth-modal').classList.add('show');
+  document.getElementById('auth-email').value    = '';
+  document.getElementById('auth-password').value = '';
+  document.getElementById('auth-name').value     = '';
+  showAuthError('');
+};
+
+window.closeAuthModalDirect = function() {
+  document.getElementById('auth-modal').classList.remove('show');
+};
+
+window.closeAuthModal = function(e) {
+  if (e.target === document.getElementById('auth-modal')) closeAuthModalDirect();
+};
+
+window.switchTab = function(mode) {
+  authMode = mode;
+  document.getElementById('tab-signin').classList.toggle('active', mode === 'signin');
+  document.getElementById('tab-register').classList.toggle('active', mode === 'register');
+  document.getElementById('auth-modal-title').textContent = mode === 'signin' ? 'Welcome back' : 'Create account';
+  document.getElementById('btn-auth-submit').textContent  = mode === 'signin' ? 'Sign In' : 'Create Account';
+  document.getElementById('field-name').style.display     = mode === 'register' ? 'block' : 'none';
+  document.getElementById('auth-footer-note').innerHTML   = mode === 'signin'
+    ? 'Don\'t have an account? <span style="color:var(--accent);cursor:pointer" onclick="switchTab(\'register\')">Register free</span>'
+    : 'Already have an account? <span style="color:var(--accent);cursor:pointer" onclick="switchTab(\'signin\')">Sign in</span>';
+  showAuthError('');
+};
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
   el.textContent = msg;
-  el.className = `toast show${type === 'ok' ? ' tok' : type === 'err' ? ' terr' : ''}`;
-  clearTimeout(_tt);
-  _tt = setTimeout(() => el.classList.remove('show'), 3500);
+  el.classList.toggle('show', !!msg);
 }
+
+window.submitAuth = async function() {
+  const email    = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const name     = document.getElementById('auth-name').value.trim();
+  const btn      = document.getElementById('btn-auth-submit');
+
+  if (!email || !password) { showAuthError('Please enter email and password.'); return; }
+  btn.disabled = true;
+  btn.textContent = authMode === 'signin' ? 'Signing in…' : 'Creating account…';
+  showAuthError('');
+
+  try {
+    if (authMode === 'signin') {
+      await signInWithEmailAndPassword(auth, email, password);
+    } else {
+      if (password.length < 6) throw { code: 'auth/weak-password' };
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      if (name) await updateProfile(cred.user, { displayName: name });
+    }
+    closeAuthModalDirect();
+    toast(`✓ ${authMode === 'signin' ? 'Signed in' : 'Account created'}!`, 'ok');
+  } catch (err) {
+    const msgs = {
+      'auth/user-not-found':      'No account found with this email.',
+      'auth/wrong-password':      'Incorrect password.',
+      'auth/email-already-in-use':'An account with this email already exists.',
+      'auth/weak-password':       'Password must be at least 6 characters.',
+      'auth/invalid-email':       'Please enter a valid email address.',
+      'auth/invalid-credential':  'Incorrect email or password.',
+      'auth/popup-closed-by-user':'Sign-in cancelled.',
+    };
+    showAuthError(msgs[err.code] || 'Something went wrong. Please try again.');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = authMode === 'signin' ? 'Sign In' : 'Create Account';
+  }
+};
+
+window.signInWithGoogle = async function() {
+  showAuthError('');
+  try {
+    await signInWithPopup(auth, googleProvider);
+    closeAuthModalDirect();
+    toast('✓ Signed in with Google!', 'ok');
+  } catch (err) {
+    if (err.code !== 'auth/popup-closed-by-user')
+      showAuthError('Google sign-in failed. Please try again.');
+  }
+};
+
+window.signOutUser = async function() {
+  await signOut(auth);
+  toggleUserMenu(true);
+  toast('Signed out.', '');
+};
+
+window.toggleUserMenu = function(forceClose) {
+  const menu = document.getElementById('user-menu');
+  if (forceClose) { menu.classList.remove('open'); return; }
+  menu.classList.toggle('open');
+};
+
+// Close menu on outside click
+document.addEventListener('click', (e) => {
+  if (!document.getElementById('nav-user')?.contains(e.target))
+    document.getElementById('user-menu')?.classList.remove('open');
+});
+
+// ── Image limit enforcement ────────────────────────────────────
+window._canProcess = function() {
+  const limit = getLimit();
+  if (usedToday >= limit) {
+    if (userPlan === 'free' && !currentUser) {
+      toast('Sign up free to get more images, or upgrade to Pro for 50/day', 'err');
+      setTimeout(() => openAuth('register'), 800);
+    } else if (userPlan === 'free') {
+      toast('Daily limit reached — upgrade to Pro for 50/day', 'err');
+      setTimeout(() => window.location.href = 'pricing.html', 1200);
+    } else {
+      toast('Pro daily limit (50) reached. Resets at midnight.', 'err');
+    }
+    return false;
+  }
+  return true;
+};
+
+window._onImageProcessed = function() { incrementUsage(); };
+
+// Expose auth helpers to global scope for nav buttons
+window.openAuth = window.openAuth;
 </script>
 </body>
 </html>

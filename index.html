@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -351,12 +352,12 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
     </div>
 
     <!-- Drop zone -->
-    <div class="dropzone" id="dropzone">
+    <label class="dropzone" id="dropzone" for="file-input">
       <div class="dz-icon">🖼️</div>
       <div class="dz-title">Drop images here or click to upload</div>
       <p class="dz-sub">Supports JPG, PNG, WebP, AVIF &nbsp;·&nbsp; Max 50MB each &nbsp;·&nbsp; Up to 3 free images/day</p>
-    </div>
-    <input type="file" id="file-input" multiple accept="image/jpeg,image/png,image/webp,image/avif">
+    </label>
+    <input type="file" id="file-input" multiple accept="image/jpeg,image/png,image/webp,image/avif" style="display:none">
 
     <!-- What gets stripped -->
     <div class="strip-chips">
@@ -369,7 +370,7 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
     </div>
 
     <!-- Pro lock notice for batch -->
-    <div class="pro-lock" id="pro-lock">🔒 Batch processing is a Pro feature — <a href="pricing.html" style="color:var(--accent2);margin-left:4px">Upgrade for $1/mo →</a></div>
+    <div class="pro-lock" id="pro-lock">🔒 Batch processing is a Pro feature — <a href="pricing.html" style="color:var(--accent2);margin-left:4px">Upgrade for $2/mo →</a></div>
 
     <!-- Usage -->
     <div class="usage-row">
@@ -417,7 +418,7 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
     <div class="upsell-feats">
       <div class="uf"><span class="uf-icon">⚡</span><div class="uf-title">Batch Processing</div><div class="uf-desc">Process up to 50 images at once</div></div>
       <div class="uf"><span class="uf-icon">🔢</span><div class="uf-title">Higher Limits</div><div class="uf-desc">50 images/day vs 3 for free</div></div>
-      <div class="uf"><span class="uf-icon">🚀</span><div class="uf-title">Just $1/month</div><div class="uf-desc">Cancel anytime, no commitment</div></div>
+      <div class="uf"><span class="uf-icon">🚀</span><div class="uf-title">Just $2/month</div><div class="uf-desc">Cancel anytime, no commitment</div></div>
     </div>
     <div class="upsell-cta"><a href="pricing.html" class="btn-upgrade">View Pricing Plans →</a></div>
   </div>
@@ -745,8 +746,47 @@ window._canProcess = function() {
 
 window._onImageProcessed = function() { incrementUsage(); };
 
-// Expose auth helpers to global scope for nav buttons
-window.openAuth = window.openAuth;
+// ── Dropzone & file input ──────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const dz = document.getElementById('dropzone');
+  const fi = document.getElementById('file-input');
+
+  fi.addEventListener('change', e => {
+    addFiles(Array.from(e.target.files));
+    fi.value = ''; // reset so same file can be re-added
+  });
+
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('drag-over');
+    addFiles(Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')));
+  });
+
+  document.getElementById('btn-process').addEventListener('click', processImages);
+  document.getElementById('btn-clear').addEventListener('click', () => {
+    queue = []; renderQueue();
+    document.getElementById('report-section').style.display = 'none';
+    document.getElementById('report-list').innerHTML = '';
+    document.getElementById('btn-process').disabled = true;
+    setProg(0, false); setLabel('');
+  });
+
+  document.getElementById('btn-download-all').addEventListener('click', async () => {
+    for (const item of queue.filter(i => i.status === 'done')) {
+      const ext = (item.mimeType || 'image/jpeg').split('/')[1] === 'jpeg' ? 'jpg' : (item.mimeType || '').split('/')[1];
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(item.resultBlob);
+      a.download = `clean_${item.file.name.replace(/\.[^.]+$/, '')}.${ext || 'jpg'}`; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      await new Promise(r => setTimeout(r, 150));
+    }
+  });
+
+  document.getElementById('strength').addEventListener('input', e => {
+    document.getElementById('strength-val').textContent = e.target.value;
+  });
+});
 </script>
 </body>
 </html>

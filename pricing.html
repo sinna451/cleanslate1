@@ -375,15 +375,8 @@ footer { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; paddi
           <div class="stripe-info-row"><span>Total today</span><span style="color:var(--accent2)">$2.00</span></div>
         </div>
 
-        <!-- Stripe link key setup -->
-        <div class="stripe-key-note" id="stripe-setup">
-          <p>To enable payments, add your <code>Stripe Payment Link</code> URL below. Create one at <strong>dashboard.stripe.com → Payment Links</strong> for $2/month recurring, then paste it here.</p>
-          <input class="stripe-key-input" id="stripe-link-input" type="url" placeholder="https://buy.stripe.com/your_payment_link">
-          <button class="btn-save-key" onclick="saveStripeLink()">Save &amp; Enable Checkout →</button>
-        </div>
-
-        <!-- After link saved: show checkout button -->
-        <div id="stripe-ready" style="display:none;width:100%">
+        <!-- Checkout button -->
+        <div style="width:100%">
           <button class="btn-pro" style="width:100%;font-size:1rem;padding:15px" onclick="goToStripe()">
             💳 Continue to Checkout
           </button>
@@ -428,18 +421,8 @@ function closeModal(e) {
   if (e.target === document.getElementById('modal-overlay')) closeModalDirect();
 }
 
-function saveStripeLink() {
-  const val = document.getElementById('stripe-link-input').value.trim();
-  if (!val.startsWith('https://')) { toast('Please enter a valid https:// URL', 'err'); return; }
-  localStorage.setItem('cs_stripe_link', val);
-  document.getElementById('stripe-setup').style.display = 'none';
-  document.getElementById('stripe-ready').style.display = 'block';
-  toast('✓ Stripe link saved!', 'ok');
-}
-
 function goToStripe() {
-  const link = localStorage.getItem('cs_stripe_link');
-  if (link) window.open(link, '_blank');
+  window.open('https://buy.stripe.com/3cI4gBbnJ3DYdYx8PsdEs00', '_blank');
 }
 
 function openSignIn() { window.location.href = 'index.html'; }

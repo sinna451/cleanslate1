@@ -37,6 +37,10 @@ nav { position:sticky; top:0; z-index:100; backdrop-filter:blur(18px); backgroun
 .btn-nav-reg { background:linear-gradient(135deg,#6d28d9,#a78bfa); border:none; color:#fff; cursor:pointer; font-family:'Outfit',sans-serif; font-size:0.82rem; font-weight:600; padding:7px 16px; border-radius:var(--rsm); box-shadow:0 2px 14px rgba(109,40,217,0.45); transition:all 0.18s; margin-left:4px; }
 .btn-nav-reg:hover { transform:translateY(-1px); }
 
+/* Hide nav auth until Firebase resolves */
+#nav-auth-out, #nav-auth-in { opacity: 0; transition: opacity 0.2s ease; }
+#nav-auth-out.auth-ready, #nav-auth-in.auth-ready { opacity: 1; }
+
 /* PAGE */
 .page { position:relative; z-index:1; max-width:760px; margin:0 auto; padding:64px 24px 100px; }
 
@@ -228,7 +232,9 @@ const auth = getAuth(app);
 onAuthStateChanged(auth, (user) => {
   if (user) {
     document.getElementById('nav-auth-out').style.display = 'none';
-    document.getElementById('nav-auth-in').style.display  = 'block';
+    const navIn = document.getElementById('nav-auth-in');
+    navIn.style.display = 'block';
+    setTimeout(() => navIn.classList.add('auth-ready'), 10);
     const name = user.displayName || user.email.split('@')[0];
     document.getElementById('nav-user-name').textContent = name;
     document.getElementById('menu-email').textContent    = user.email;
@@ -239,8 +245,10 @@ onAuthStateChanged(auth, (user) => {
       avatarEl.textContent = name.charAt(0).toUpperCase();
     }
   } else {
-    document.getElementById('nav-auth-out').style.display = 'flex';
     document.getElementById('nav-auth-in').style.display  = 'none';
+    const navOut = document.getElementById('nav-auth-out');
+    navOut.style.display = 'flex';
+    setTimeout(() => navOut.classList.add('auth-ready'), 10);
   }
 });
 

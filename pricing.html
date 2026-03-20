@@ -180,9 +180,27 @@ footer { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; paddi
     <div class="nav-links">
       <a href="index.html">Tool</a>
       <a href="pricing.html" class="active">Pricing</a>
-      <a href="#">FAQ</a>
-      <button class="btn-nav-in" onclick="openSignIn()">Sign In</button>
-      <button class="btn-nav-reg" onclick="openRegister()">⚡ Register</button>
+      <a href="faq.html">FAQ</a>
+      <!-- Logged OUT -->
+      <div id="nav-auth-out" style="display:flex;align-items:center;gap:4px">
+        <button class="btn-nav-in" onclick="window.location.href='index.html'">Sign In</button>
+        <button class="btn-nav-reg" onclick="window.location.href='index.html'">⚡ Register</button>
+      </div>
+      <!-- Logged IN -->
+      <div id="nav-auth-in" style="display:none">
+        <div style="display:flex;align-items:center;gap:8px;cursor:pointer;position:relative" id="nav-user" onclick="toggleUserMenu()">
+          <div id="nav-avatar" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;color:#fff;border:2px solid rgba(167,139,250,0.4);overflow:hidden;flex-shrink:0">?</div>
+          <span id="nav-user-name" style="font-size:0.82rem;font-weight:500;color:var(--text2);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Account</span>
+          <div id="user-menu" style="display:none;position:absolute;top:calc(100% + 10px);right:0;background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:6px;min-width:180px;box-shadow:0 12px 40px rgba(0,0,0,0.4);z-index:300">
+            <div style="padding:8px 12px 6px">
+              <div style="font-size:0.78rem;font-weight:600;color:var(--text)" id="menu-email"></div>
+              <div id="menu-plan-badge" style="margin-top:4px"></div>
+            </div>
+            <div style="height:1px;background:var(--border);margin:4px 0"></div>
+            <div style="padding:8px 12px;font-size:0.82rem;color:var(--text2);border-radius:6px;cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'" onclick="signOutUser()">Sign Out</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </nav>
@@ -393,6 +411,66 @@ footer { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; paddi
 
 <div class="toast" id="toast"></div>
 
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyACY8gDd419FvuBWkrAySgceAQr4F0JEVA",
+  authDomain: "cleanslate-229bc.firebaseapp.com",
+  projectId: "cleanslate-229bc",
+  storageBucket: "cleanslate-229bc.firebasestorage.app",
+  messagingSenderId: "397090729404",
+  appId: "1:397090729404:web:9665baa2436a34e7bc4fb9"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    // Show user avatar
+    document.getElementById('nav-auth-out').style.display = 'none';
+    document.getElementById('nav-auth-in').style.display  = 'block';
+    const name = user.displayName || user.email.split('@')[0];
+    document.getElementById('nav-user-name').textContent  = name;
+    document.getElementById('menu-email').textContent     = user.email;
+    const avatarEl = document.getElementById('nav-avatar');
+    if (user.photoURL) {
+      avatarEl.innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;object-fit:cover">`;
+    } else {
+      avatarEl.textContent = name.charAt(0).toUpperCase();
+    }
+    // Get plan
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    const plan = snap.exists() ? (snap.data().plan || 'free') : 'free';
+    document.getElementById('menu-plan-badge').innerHTML = plan === 'pro'
+      ? '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);border-radius:99px;padding:1px 7px;font-size:0.62rem;font-weight:700">⚡ Pro</span>'
+      : '<span style="font-size:0.7rem;color:var(--muted)">Free plan</span>';
+  } else {
+    document.getElementById('nav-auth-out').style.display = 'flex';
+    document.getElementById('nav-auth-in').style.display  = 'none';
+  }
+});
+
+window.signOutUser = async function() {
+  await signOut(auth);
+  document.getElementById('user-menu').style.display = 'none';
+};
+
+window.toggleUserMenu = function() {
+  const menu = document.getElementById('user-menu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+};
+
+document.addEventListener('click', (e) => {
+  if (!document.getElementById('nav-user')?.contains(e.target))
+    document.getElementById('user-menu').style.display = 'none';
+});
+</script>
+
 <script>
 // ── FAQ ──────────────────────────────────────────────────────────
 function togFaq(el) {
@@ -422,7 +500,7 @@ function closeModal(e) {
 }
 
 function goToStripe() {
-  window.open('https://buy.stripe.com/test_3cI4gBbnJ3DYdYx8PsdEs00', '_blank');
+  window.open('https://buy.stripe.com/3cI4gBbnJ3DYdYx8PsdEs00', '_blank');
 }
 
 function openSignIn() { window.location.href = 'index.html'; }

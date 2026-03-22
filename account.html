@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Account Settings — CleanSlate</title>
+<title>Account Settings — QuickWipe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -129,7 +129,7 @@ footer { position:relative; z-index:1; max-width:660px; margin:0 auto; padding:2
   <div class="nav-inner">
     <a class="nav-logo" href="index.html">
       <div class="nav-logo-icon">🧹</div>
-      <div class="nav-logo-name">Clean<span>Slate</span></div>
+      <div class="nav-logo-name">Quick<span>Wipe</span></div>
     </a>
     <div class="nav-links">
       <a href="index.html">Tool</a>
@@ -256,7 +256,7 @@ footer { position:relative; z-index:1; max-width:660px; margin:0 auto; padding:2
 </div>
 
 <footer>
-  <span>© 2025 CleanSlate. All rights reserved.</span>
+  <span>© 2025 QuickWipe. All rights reserved.</span>
   <span>🔒 100% in-browser processing</span>
 </footer>
 
@@ -273,7 +273,9 @@ footer { position:relative; z-index:1; max-width:660px; margin:0 auto; padding:2
         <li>50 images/day → back to 3/day</li>
         <li>Batch processing</li>
       </ul>
-      <p style="font-size:0.78rem;color:var(--muted)">Your Pro access continues until the end of your billing period.</p>
+      <p style="font-size:0.82rem;color:var(--accent2);background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:10px 12px;line-height:1.6">
+        💡 You'll be taken to Stripe — use the same email you signed up with: <strong id="modal-email-hint" style="color:var(--text)"></strong>
+      </p>
       <div class="modal-btns" style="margin-top:16px">
         <button class="btn-keep-pro" onclick="closeCancelModalDirect()">Keep Pro ✓</button>
         <button class="btn-cancel-confirm" onclick="goToCancelStripe()">Yes, Cancel</button>
@@ -374,6 +376,8 @@ window.confirmSignOut = async function() {
 
 <script>
 function openCancelModal() {
+  const email = document.getElementById('profile-email')?.textContent || '';
+  document.getElementById('modal-email-hint').textContent = email;
   document.getElementById('cancel-modal').classList.add('show');
 }
 function closeCancelModalDirect() {

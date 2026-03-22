@@ -359,7 +359,7 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
     <div class="dropzone" id="dropzone">
       <div class="dz-icon">🖼️</div>
       <div class="dz-title">Drop images here or click to upload</div>
-      <p class="dz-sub">Supports JPG, PNG, WebP, AVIF &nbsp;·&nbsp; Max 50MB each &nbsp;·&nbsp; Up to 3 free images/day</p>
+      <p class="dz-sub">Supports JPG, PNG, WebP, AVIF &nbsp;·&nbsp; Max 50MB each &nbsp;·&nbsp; Up to 3 free images/week</p>
     </div>
     <input type="file" id="file-input" multiple accept="image/jpeg,image/png,image/webp,image/avif,image/*" style="position:fixed;top:-9999px;left:-9999px;opacity:0;">
 
@@ -380,7 +380,7 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
     <div class="usage-row">
       <div>
         <div class="usage-num"><em id="used-count">0</em>/<span id="daily-limit">3</span></div>
-        <div class="usage-sub" id="usage-sub-label">free images today</div>
+        <div class="usage-sub" id="usage-sub-label">free images this week</div>
       </div>
       <div class="usage-track"><div class="usage-fill" id="usage-fill"></div></div>
       <a href="pricing.html" class="usage-cta" id="usage-cta">Sign up for more →</a>
@@ -421,7 +421,7 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
     </div>
     <div class="upsell-feats">
       <div class="uf"><span class="uf-icon">⚡</span><div class="uf-title">Batch Processing</div><div class="uf-desc">Process up to 50 images at once</div></div>
-      <div class="uf"><span class="uf-icon">🔢</span><div class="uf-title">Higher Limits</div><div class="uf-desc">50 images/day vs 3 for free</div></div>
+      <div class="uf"><span class="uf-icon">🔢</span><div class="uf-title">Higher Limits</div><div class="uf-desc">50 images/day vs 3/week free</div></div>
       <div class="uf"><span class="uf-icon">🚀</span><div class="uf-title">Just $2/month</div><div class="uf-desc">Cancel anytime, no commitment</div></div>
     </div>
     <div class="upsell-cta"><a href="pricing.html" class="btn-upgrade">View Pricing Plans →</a></div>
@@ -539,7 +539,7 @@ onAuthStateChanged(auth, async (user) => {
 async function loadUserData(user) {
   const ref  = doc(db, 'users', user.uid);
   const snap = await getDoc(ref);
-  const today = new Date().toISOString().split('T')[0];
+  const thisWeek = getWeekKey();
 
   if (!snap.exists()) {
     // New user — create doc
@@ -547,7 +547,7 @@ async function loadUserData(user) {
       email: user.email,
       displayName: user.displayName || '',
       plan: 'free',
-      usageDate: today,
+      usageDate: thisWeek,
       usageCount: 0,
       createdAt: new Date().toISOString()
     });
@@ -556,9 +556,9 @@ async function loadUserData(user) {
   } else {
     const data = snap.data();
     userPlan   = data.plan || 'free';
-    // Reset count if new day
-    if (data.usageDate !== today) {
-      await updateDoc(ref, { usageDate: today, usageCount: 0 });
+    // Reset count if new week
+    if (data.usageDate !== thisWeek) {
+      await updateDoc(ref, { usageDate: thisWeek, usageCount: 0 });
       usedToday = 0;
     } else {
       usedToday = data.usageCount || 0;
@@ -567,10 +567,18 @@ async function loadUserData(user) {
   updateUsageUI();
 }
 
+// ── Week key helper ────────────────────────────────────────────
+function getWeekKey() {
+  const now  = new Date();
+  const jan1 = new Date(now.getFullYear(), 0, 1);
+  const week = Math.ceil(((now - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  return `${now.getFullYear()}-W${week}`;
+}
+
 async function incrementUsage() {
   if (!currentUser) {
     usedToday++;
-    localStorage.setItem('cs_used_' + new Date().toISOString().split('T')[0], usedToday);
+    localStorage.setItem('cs_used_' + getWeekKey(), usedToday);
     updateUsageUI();
     return;
   }
@@ -593,7 +601,7 @@ function updateUsageUI() {
     document.getElementById('usage-cta').style.display = 'none';
     document.getElementById('pro-lock').classList.remove('show');
   } else {
-    document.getElementById('usage-sub-label').textContent = 'free images today';
+    document.getElementById('usage-sub-label').textContent = 'free images this week';
     document.getElementById('usage-cta').style.display = '';
     document.getElementById('pro-lock').classList.add('show');
   }
@@ -601,8 +609,7 @@ function updateUsageUI() {
 
 function resetToFree() {
   userPlan  = 'free';
-  const today = new Date().toISOString().split('T')[0];
-  usedToday = parseInt(localStorage.getItem('cs_used_' + today) || '0');
+  usedToday = parseInt(localStorage.getItem('cs_used_' + getWeekKey()) || '0');
   updateUsageUI();
 }
 
@@ -751,13 +758,13 @@ window._canProcess = function() {
   const limit = getLimit();
   if (usedToday >= limit) {
     if (userPlan === 'free' && !currentUser) {
-      toast('Sign up free to get more images, or upgrade to Pro for 50/day', 'err');
+      toast('Sign up free for more images, or upgrade to Pro for 50/day', 'err');
       setTimeout(() => openAuth('register'), 800);
     } else if (userPlan === 'free') {
-      toast('Daily limit reached — upgrade to Pro for 50/day', 'err');
+      toast('Weekly limit reached — upgrade to Pro for 50/day', 'err');
       setTimeout(() => window.location.href = 'pricing.html', 1200);
     } else {
-      toast('Pro daily limit (50) reached. Resets at midnight.', 'err');
+      toast('Pro daily limit (50) reached. Resets tomorrow.', 'err');
     }
     return false;
   }

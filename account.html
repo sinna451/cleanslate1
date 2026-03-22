@@ -340,6 +340,7 @@ onAuthStateChanged(auth, async (user) => {
 
   // Show content
   document.getElementById('account-content').style.display = 'block';
+  window._currentUid = user.uid;
 
   // Profile
   document.getElementById('profile-name').textContent  = user.displayName || name;
@@ -409,9 +410,43 @@ function openBillingPortal() {
   window.open(url, '_blank');
 }
 
-function goToCancelStripe() {
-  openBillingPortal();
-  closeCancelModalDirect();
+async function goToCancelStripe() {
+  const btn = document.querySelector('.btn-cancel-confirm');
+  btn.textContent = 'Cancelling…';
+  btn.disabled = true;
+
+  try {
+    // Get current user uid and email from the page
+    const email = document.getElementById('profile-email')?.textContent || '';
+    const uid   = window._currentUid || '';
+
+    if (!uid || !email) throw new Error('Not signed in');
+
+    const res  = await fetch('https://quickwipe-api.vercel.app/api/cancel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid, email })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      closeCancelModalDirect();
+      toast(`✓ ${data.message}`, 'ok');
+      // Update UI to show cancelling state
+      document.getElementById('cancel-card').style.display = 'none';
+      document.getElementById('pro-actions').innerHTML = `
+        <p style="font-size:0.82rem;color:var(--accent2);margin-top:14px">
+          ⚠️ Your subscription is cancelled. Pro access continues until end of billing period.
+        </p>`;
+    } else {
+      throw new Error(data.error || 'Cancellation failed');
+    }
+  } catch (err) {
+    toast(`Error: ${err.message}`, 'err');
+    btn.textContent = 'Yes, Cancel';
+    btn.disabled = false;
+  }
 }
 
 let _tt;

@@ -233,7 +233,7 @@ footer { position:relative; z-index:1; max-width:660px; margin:0 auto; padding:2
         <!-- Pro actions -->
         <div id="pro-actions" style="display:none">
           <div class="btn-row">
-            <button class="btn-outline" onclick="window.open('https://billing.stripe.com/p/login/','_blank')">Manage Billing on Stripe →</button>
+            <button class="btn-outline" onclick="window.open('https://billing.stripe.com/p/login/3cI4gBbnJ3DYdYx8PsdEs00','_blank')">Manage Billing on Stripe →</button>
           </div>
         </div>
       </div>
@@ -383,7 +383,6 @@ function closeCancelModal(e) {
   if (e.target === document.getElementById('cancel-modal')) closeCancelModalDirect();
 }
 function goToCancelStripe() {
-  // Send user to Stripe customer portal to cancel
   window.open('https://billing.stripe.com/p/login/3cI4gBbnJ3DYdYx8PsdEs00', '_blank');
   closeCancelModalDirect();
 }

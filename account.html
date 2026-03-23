@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Account Settings — QuickWipe</title>
+<title>Account Settings — QuickMetaWipe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -136,7 +136,7 @@ footer { position:relative; z-index:1; max-width:660px; margin:0 auto; padding:2
   <div class="nav-inner">
     <a class="nav-logo" href="index.html">
       <div class="nav-logo-icon">🧹</div>
-      <div class="nav-logo-name">Quick<span>Wipe</span></div>
+      <div class="nav-logo-name">Quick<span>MetaWipe</span></div>
     </a>
     <div class="nav-links">
       <a href="index.html">Tool</a>
@@ -272,7 +272,7 @@ footer { position:relative; z-index:1; max-width:660px; margin:0 auto; padding:2
 </div>
 
 <footer>
-  <span>© 2025 QuickWipe. All rights reserved.</span>
+  <span>© 2025 QuickMetaWipe. All rights reserved.</span>
   <span>🔒 100% in-browser processing</span>
 </footer>
 
@@ -422,7 +422,7 @@ async function goToCancelStripe() {
 
     if (!uid || !email) throw new Error('Not signed in');
 
-    const res  = await fetch('https://quickwipe-api.vercel.app/api/cancel', {
+    const res  = await fetch('https://quickmetawipe-api.vercel.app/api/cancel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ uid, email })

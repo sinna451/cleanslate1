@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QuickWipe — Strip AI Metadata & Remove AI Tags</title>
+<title>QuickMetaWipe — Strip AI Metadata & Remove AI Tags</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -278,7 +278,7 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
     <a class="nav-logo" href="#">
       <div class="nav-logo-icon">🧹</div>
       <div class="nav-logo-wrap">
-        <div class="nav-logo-name">Quick<span>Wipe</span></div>
+        <div class="nav-logo-name">Quick<span>MetaWipe</span></div>
         <span class="nav-logo-sub">For Creators Who Stay Undetected</span>
       </div>
     </a>
@@ -432,7 +432,7 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
     <div class="upsell-top">
       <span class="crown">👑</span>
       <h2>Unlock Pro Features</h2>
-      <p>Get more from QuickWipe with a Pro account</p>
+      <p>Get more from QuickMetaWipe with a Pro account</p>
     </div>
     <div class="upsell-feats">
       <div class="uf"><span class="uf-icon">⚡</span><div class="uf-title">Batch Processing</div><div class="uf-desc">Process up to 50 images at once</div></div>
@@ -446,7 +446,7 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
 
 <footer>
   <span>🔒 100% client-side — images are processed in your browser and never uploaded anywhere</span>
-  <span>QuickWipe v2.0</span>
+  <span>QuickMetaWipe v2.0</span>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -951,6 +951,7 @@ function dlSingle(id) {
   a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); document.body.removeChild(a); }, 5000);
 }
+window.dlSingle = dlSingle;
 
 function addReport(r) {
   const list = document.getElementById('report-list');

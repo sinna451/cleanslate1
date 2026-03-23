@@ -945,8 +945,11 @@ function dlSingle(id) {
   const ext = item.mimeType.split('/')[1] === 'jpeg' ? 'jpg' : item.mimeType.split('/')[1];
   const a = document.createElement('a');
   a.href = URL.createObjectURL(item.resultBlob);
-  a.download = `clean_${item.file.name.replace(/\.[^.]+$/, '')}.${ext}`; a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  a.download = `clean_${item.file.name.replace(/\.[^.]+$/, '')}.${ext}`;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); document.body.removeChild(a); }, 5000);
 }
 
 function addReport(r) {
@@ -1027,8 +1030,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const ext = (item.mimeType || 'image/jpeg').split('/')[1] === 'jpeg' ? 'jpg' : (item.mimeType || '').split('/')[1];
       const a = document.createElement('a');
       a.href = URL.createObjectURL(item.resultBlob);
-      a.download = `clean_${item.file.name.replace(/\.[^.]+$/, '')}.${ext || 'jpg'}`; a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      a.download = `clean_${item.file.name.replace(/\.[^.]+$/, '')}.${ext || 'jpg'}`;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); document.body.removeChild(a); }, 5000);
       await new Promise(r => setTimeout(r, 150));
     }
   });

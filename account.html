@@ -422,7 +422,7 @@ async function goToCancelStripe() {
 
     if (!uid || !email) throw new Error('Not signed in');
 
-    const res  = await fetch('https://quickmetawipe-api.vercel.app/api/cancel', {
+    const res  = await fetch('https://quickwipe-api.vercel.app/api/cancel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ uid, email })

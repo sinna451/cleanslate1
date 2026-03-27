@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QuickMetaWipe — Strip AI Metadata & Remove AI Tags</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -345,9 +346,9 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
       </div>
       <div class="vsep"></div>
       <div class="sg">
-        <span class="lbl">Noise</span>
-        <input type="range" class="rng" id="strength" min="1" max="5" value="2">
-        <span class="rng-val" id="strength-val">2</span>
+        <span class="lbl">Protection</span>
+        <input type="range" class="rng" id="strength" min="1" max="5" value="5">
+        <span class="rng-val" id="strength-val">5</span>
       </div>
       <div class="vsep"></div>
       <div class="sg">
@@ -1043,6 +1044,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('strength').addEventListener('input', e => {
     document.getElementById('strength-val').textContent = e.target.value;
   });
+  document.getElementById('strength-val').textContent = document.getElementById('strength').value;
 });
 </script>
 </body>

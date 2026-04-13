@@ -375,10 +375,10 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
     <!-- Drop zone -->
     <div class="dropzone" id="dropzone">
       <div class="dz-icon">🖼️</div>
-      <div class="dz-title">Drop images here or click to upload</div>
-      <p class="dz-sub">Supports JPG, PNG, WebP, AVIF &nbsp;·&nbsp; Max 50MB each &nbsp;·&nbsp; Up to 3 free images/week</p>
+      <div class="dz-title">Drop images or videos here or click to upload</div>
+      <p class="dz-sub">Images: JPG, PNG, WebP, AVIF &nbsp;·&nbsp; Videos: MP4, MOV, AVI, MKV &nbsp;·&nbsp; Free: 10s video max · Pro: unlimited</p>
     </div>
-    <input type="file" id="file-input" multiple accept="image/jpeg,image/png,image/webp,image/avif,image/*" style="position:fixed;top:-9999px;left:-9999px;opacity:0;">
+    <input type="file" id="file-input" multiple accept="image/jpeg,image/png,image/webp,image/avif,image/*,video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/*" style="position:fixed;top:-9999px;left:-9999px;opacity:0;">
 
     <!-- What gets stripped -->
     <div class="strip-chips">
@@ -388,6 +388,8 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
       <div class="chip"><svg viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>Stable Diffusion Params</div>
       <div class="chip"><svg viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>AI Generator Signatures</div>
       <div class="chip"><svg viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>Image Fingerprint</div>
+      <div class="chip"><svg viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>Video Metadata</div>
+      <div class="chip"><svg viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>Video GPS / Location</div>
     </div>
 
     <!-- Pro lock notice for batch -->
@@ -397,7 +399,7 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
     <div class="usage-row">
       <div>
         <div class="usage-num"><em id="used-count">0</em>/<span id="daily-limit">3</span></div>
-        <div class="usage-sub" id="usage-sub-label">free images this week</div>
+        <div class="usage-sub" id="usage-sub-label">free files this week</div>
       </div>
       <div class="usage-track"><div class="usage-fill" id="usage-fill"></div></div>
       <a href="pricing.html" class="usage-cta" id="usage-cta">Sign up for more →</a>
@@ -497,6 +499,9 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
   </div>
 </div>
 
+<!-- FFmpeg.wasm for video processing -->
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -528,9 +533,12 @@ const googleProvider = new GoogleAuthProvider();
 // ── State ──────────────────────────────────────────────────────
 let currentUser = null;
 let userPlan    = 'free'; // 'free' | 'pro'
-let usedToday   = 0;
-const FREE_LIMIT = 3;
-const PRO_LIMIT  = 50;
+let usedToday     = 0;
+let usedVideos    = 0; // separate video counter for free users
+const FREE_LIMIT  = 3;
+const FREE_VIDEO_LIMIT = 2;
+const FREE_TOTAL  = 5; // 3 images + 2 videos
+const PRO_LIMIT   = 50;
 
 // ── Auth state listener ────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
@@ -559,26 +567,28 @@ async function loadUserData(user) {
   const thisWeek = getWeekKey();
 
   if (!snap.exists()) {
-    // New user — create doc
     await setDoc(ref, {
       email: user.email,
       displayName: user.displayName || '',
       plan: 'free',
       usageDate: thisWeek,
       usageCount: 0,
+      videoCount: 0,
       createdAt: new Date().toISOString()
     });
     userPlan   = 'free';
     usedToday  = 0;
+    usedVideos = 0;
   } else {
     const data = snap.data();
     userPlan   = data.plan || 'free';
-    // Reset count if new week
     if (data.usageDate !== thisWeek) {
-      await updateDoc(ref, { usageDate: thisWeek, usageCount: 0 });
-      usedToday = 0;
+      await updateDoc(ref, { usageDate: thisWeek, usageCount: 0, videoCount: 0 });
+      usedToday  = 0;
+      usedVideos = 0;
     } else {
-      usedToday = data.usageCount || 0;
+      usedToday  = data.usageCount || 0;
+      usedVideos = data.videoCount || 0;
     }
   }
   updateUsageUI();
@@ -592,41 +602,52 @@ function getWeekKey() {
   return `${now.getFullYear()}-W${week}`;
 }
 
-async function incrementUsage() {
+async function incrementUsage(isVideoFile = false) {
   if (!currentUser) {
     usedToday++;
+    if (isVideoFile) usedVideos++;
     localStorage.setItem('cs_used_' + getWeekKey(), usedToday);
+    localStorage.setItem('cs_vid_' + getWeekKey(), usedVideos);
     updateUsageUI();
     return;
   }
   usedToday++;
   const ref = doc(db, 'users', currentUser.uid);
-  await updateDoc(ref, { usageCount: increment(1) });
+  if (isVideoFile) {
+    usedVideos++;
+    await updateDoc(ref, { usageCount: increment(1), videoCount: increment(1) });
+  } else {
+    await updateDoc(ref, { usageCount: increment(1) });
+  }
   updateUsageUI();
 }
 
-function getLimit() { return (currentUser && userPlan === 'pro') ? PRO_LIMIT : FREE_LIMIT; }
+function getLimit() { return (currentUser && userPlan === 'pro') ? PRO_LIMIT : FREE_TOTAL; }
+function getVideoLimit() { return (currentUser && userPlan === 'pro') ? 9999 : FREE_VIDEO_LIMIT; }
+function getImageLimit() { return (currentUser && userPlan === 'pro') ? PRO_LIMIT : FREE_LIMIT; }
 
 function updateUsageUI() {
   const limit = getLimit();
   document.getElementById('used-count').textContent = usedToday;
   document.getElementById('daily-limit').textContent = limit;
   document.getElementById('usage-fill').style.width = Math.min(100, (usedToday / limit) * 100) + '%';
+  window._currentUserPlan = userPlan;
 
   if (currentUser && userPlan === 'pro') {
-    document.getElementById('usage-sub-label').textContent = 'pro images today';
+    document.getElementById('usage-sub-label').textContent = 'pro files this week';
     document.getElementById('usage-cta').style.display = 'none';
     document.getElementById('pro-lock').classList.remove('show');
   } else {
-    document.getElementById('usage-sub-label').textContent = 'free images this week';
+    document.getElementById('usage-sub-label').textContent = `free this week (${FREE_LIMIT} imgs · ${FREE_VIDEO_LIMIT} vids)`;
     document.getElementById('usage-cta').style.display = '';
     document.getElementById('pro-lock').classList.add('show');
   }
 }
 
 function resetToFree() {
-  userPlan  = 'free';
-  usedToday = parseInt(localStorage.getItem('cs_used_' + getWeekKey()) || '0');
+  userPlan   = 'free';
+  usedToday  = parseInt(localStorage.getItem('cs_used_' + getWeekKey()) || '0');
+  usedVideos = parseInt(localStorage.getItem('cs_vid_'  + getWeekKey()) || '0');
   updateUsageUI();
 }
 
@@ -788,7 +809,7 @@ window._canProcess = function() {
   return true;
 };
 
-window._onImageProcessed = function() { incrementUsage(); };
+window._onImageProcessed = function(isVideoFile) { incrementUsage(isVideoFile); };
 
 // ── Core image processing ──────────────────────────────────────
 async function stripViaCanvas(file, outFormat, quality, pixelMod, noiseStrength) {
@@ -838,7 +859,56 @@ function sniffMetadata(file) {
   return tags;
 }
 
-// ── Queue state ────────────────────────────────────────────────
+// ── Video metadata stripping ───────────────────────────────────
+async function stripVideoMetadata(file) {
+  return new Promise((resolve, reject) => {
+    // We use FFmpeg.wasm to strip metadata from video files
+    const { createFFmpeg, fetchFile } = FFmpeg;
+    const ffmpeg = createFFmpeg({ log: false });
+
+    ffmpeg.load().then(async () => {
+      const inputName  = 'input' + file.name.substring(file.name.lastIndexOf('.'));
+      const outputName = 'output' + file.name.substring(file.name.lastIndexOf('.'));
+
+      ffmpeg.FS('writeFile', inputName, await fetchFile(file));
+
+      // Strip all metadata, keep video/audio streams intact
+      await ffmpeg.run(
+        '-i', inputName,
+        '-map_metadata', '-1',   // strip all metadata
+        '-map', '0',              // keep all streams
+        '-c', 'copy',             // copy without re-encoding (fast!)
+        '-movflags', '+faststart',
+        outputName
+      );
+
+      const data = ffmpeg.FS('readFile', outputName);
+      const blob = new Blob([data.buffer], { type: file.type || 'video/mp4' });
+
+      // Cleanup
+      ffmpeg.FS('unlink', inputName);
+      ffmpeg.FS('unlink', outputName);
+
+      resolve({ blob, mimeType: file.type || 'video/mp4' });
+    }).catch(reject);
+  });
+}
+
+function isVideo(file) {
+  return file.type.startsWith('video/') ||
+    /\.(mp4|mov|avi|mkv|webm|m4v|3gp)$/i.test(file.name);
+}
+
+function sniffVideoMetadata() {
+  return [
+    'MP4/MOV container metadata',
+    'GPS / location data',
+    'Device info (make, model)',
+    'Creation date / timestamp',
+    'Software tags',
+    'Encoder signatures'
+  ];
+}
 let queue = [], idc = 0;
 
 function addFiles(files) {
@@ -847,11 +917,56 @@ function addFiles(files) {
   const remaining = limit - used - queue.length;
   let added = 0;
   for (const f of files) {
-    if (!f.type.startsWith('image/')) continue;
-    if (queue.length >= limit || added >= remaining) {
-      toast(`Daily limit: ${limit} images. Upgrade for more.`, 'err'); break;
+    if (!f.type.startsWith('image/') && !isVideo(f)) continue;
+    if (queue.length >= FREE_TOTAL || added >= (FREE_TOTAL - usedToday - queue.length)) {
+      if (userPlan !== 'pro') { toast(`Weekly limit of 5 files reached. Upgrade for more.`, 'err'); break; }
     }
-    queue.push({ file: f, id: ++idc, status: 'waiting', resultBlob: null, report: null });
+
+    // Image-specific limit check
+    if (!isVideo(f)) {
+      const imagesInQueue = queue.filter(q => !q.isVideo).length;
+      if (userPlan !== 'pro' && (usedToday - usedVideos + imagesInQueue) >= FREE_LIMIT) {
+        toast(`Free plan: max 3 images/week. Upgrade to Pro!`, 'err'); break;
+      }
+    }
+
+    if (isVideo(f)) {
+      const videoEl = document.createElement('video');
+      const url = URL.createObjectURL(f);
+      videoEl.src = url;
+      videoEl.onloadedmetadata = () => {
+        URL.revokeObjectURL(url);
+        const isPro = (window._currentUserPlan === 'pro');
+
+        // Check video duration for free users
+        if (!isPro && videoEl.duration > 10) {
+          toast(`⚠️ Free plan: videos limited to 10 seconds. Upgrade to Pro for unlimited!`, 'err');
+          setTimeout(() => window.location.href = 'pricing.html', 2000);
+          return;
+        }
+
+        // Check video count limit for free users
+        if (!isPro && usedVideos >= FREE_VIDEO_LIMIT) {
+          toast(`⚠️ Free plan: 2 videos/week limit reached. Upgrade to Pro!`, 'err');
+          setTimeout(() => window.location.href = 'pricing.html', 2000);
+          return;
+        }
+
+        queue.push({ file: f, id: ++idc, status: 'waiting', resultBlob: null, report: null, isVideo: true });
+        renderQueue();
+        document.getElementById('btn-process').disabled = queue.length === 0;
+      };
+      videoEl.onerror = () => {
+        URL.revokeObjectURL(url);
+        queue.push({ file: f, id: ++idc, status: 'waiting', resultBlob: null, report: null, isVideo: true });
+        renderQueue();
+        document.getElementById('btn-process').disabled = queue.length === 0;
+      };
+      added++;
+      continue;
+    }
+
+    queue.push({ file: f, id: ++idc, status: 'waiting', resultBlob: null, report: null, isVideo: false });
     added++;
   }
   renderQueue();
@@ -865,17 +980,24 @@ function renderQueue() {
   document.getElementById('queue-count').textContent = `(${queue.length})`;
   grid.innerHTML = '';
   for (const item of queue) {
-    const url = URL.createObjectURL(item.file);
-    const sz  = (item.file.size / 1024).toFixed(0);
+    const sz  = (item.file.size / 1024) > 1024
+      ? (item.file.size / 1024 / 1024).toFixed(1) + ' MB'
+      : (item.file.size / 1024).toFixed(0) + ' KB';
     const card = document.createElement('div');
     card.className = 'img-card'; card.id = `card-${item.id}`;
     const [bc, bt] = statusBadge(item.status);
+
+    const thumbHtml = item.isVideo
+      ? `<div class="img-thumb" style="background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:2.5rem;height:128px">🎬</div>`
+      : `<img class="img-thumb" src="${URL.createObjectURL(item.file)}" alt="">`;
+
+    const ext = item.file.name.split('.').pop().toUpperCase();
     card.innerHTML = `
-      <img class="img-thumb" src="${url}" alt="">
+      ${thumbHtml}
       <span class="cbadge ${bc}">${bt}</span>
       <div class="img-body">
         <div class="img-name" title="${item.file.name}">${item.file.name}</div>
-        <div class="img-meta">${sz} KB · ${(item.file.type.split('/')[1] || '').toUpperCase()}</div>
+        <div class="img-meta">${sz} · ${ext}</div>
       </div>
       <button class="btn-dl-card" ${item.status !== 'done' ? 'disabled' : ''} onclick="dlSingle(${item.id})">↓ Download</button>`;
     grid.appendChild(card);
@@ -917,18 +1039,36 @@ async function processImages() {
     setLabel(`Processing ${item.file.name} (${done + 1}/${queue.length})`);
     try {
       const origSize = item.file.size;
-      const { blob, mimeType, width, height } = await stripViaCanvas(item.file, outFormat, quality, pix, str);
-      item.status = 'done'; item.resultBlob = blob; item.mimeType = mimeType;
-      item.report = {
-        filename: item.file.name, format: outFormat.toUpperCase(),
-        dimensions: `${width} × ${height}`, original_size: origSize,
-        output_size: blob.size,
-        size_change_pct: ((blob.size - origSize) / origSize * 100).toFixed(1),
-        pixel_modified: pix, noise_strength: pix ? str : 0,
-        metadata_stripped: sniffMetadata(item.file)
-      };
+
+      if (item.isVideo) {
+        // Video processing via FFmpeg
+        setLabel(`Stripping video metadata from ${item.file.name}…`);
+        const { blob, mimeType } = await stripVideoMetadata(item.file);
+        item.status = 'done'; item.resultBlob = blob; item.mimeType = mimeType;
+        item.report = {
+          filename: item.file.name, format: item.file.name.split('.').pop().toUpperCase(),
+          dimensions: 'Video', original_size: origSize,
+          output_size: blob.size,
+          size_change_pct: ((blob.size - origSize) / origSize * 100).toFixed(1),
+          pixel_modified: false, noise_strength: 0,
+          metadata_stripped: sniffVideoMetadata()
+        };
+      } else {
+        // Image processing via Canvas
+        const { blob, mimeType, width, height } = await stripViaCanvas(item.file, outFormat, quality, pix, str);
+        item.status = 'done'; item.resultBlob = blob; item.mimeType = mimeType;
+        item.report = {
+          filename: item.file.name, format: outFormat.toUpperCase(),
+          dimensions: `${width} × ${height}`, original_size: origSize,
+          output_size: blob.size,
+          size_change_pct: ((blob.size - origSize) / origSize * 100).toFixed(1),
+          pixel_modified: pix, noise_strength: pix ? str : 0,
+          metadata_stripped: sniffMetadata(item.file)
+        };
+      }
+
       updCard(item.id, 'done'); addReport(item.report);
-      if (window._onImageProcessed) window._onImageProcessed();
+      if (window._onImageProcessed) window._onImageProcessed(item.isVideo);
     } catch (err) {
       item.status = 'error'; updCard(item.id, 'error'); console.error(err);
     }
@@ -939,7 +1079,7 @@ async function processImages() {
   btn.disabled = false;
   document.getElementById('report-section').style.display = 'block';
   const succeeded = queue.filter(i => i.status === 'done').length;
-  toast(`✓ ${succeeded} image${succeeded !== 1 ? 's' : ''} cleaned!`, 'ok');
+  toast(`✓ ${succeeded} file${succeeded !== 1 ? 's' : ''} cleaned!`, 'ok');
 }
 
 function dlSingle(id) {

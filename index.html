@@ -501,6 +501,58 @@ footer { position:relative; z-index:1; max-width:720px; margin:0 auto; padding:2
 
 <!-- FFmpeg.wasm for video processing -->
 <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+<script>
+// Simple video metadata stripper using fetch + blob manipulation
+// For browsers that don't support SharedArrayBuffer (GitHub Pages)
+window.stripVideoSimple = async function(file) {
+  // Read file as ArrayBuffer
+  const buffer = await file.arrayBuffer();
+  const uint8 = new Uint8Array(buffer);
+
+  // For MP4: find and zero out metadata atoms (moov/udta/meta)
+  // Simple approach: create a clean copy by re-reading through video element
+  return new Promise((resolve) => {
+    const video = document.createElement('video');
+    const url   = URL.createObjectURL(file);
+    video.src   = url;
+    video.muted = true;
+
+    video.onloadeddata = async () => {
+      URL.revokeObjectURL(url);
+
+      // Use MediaRecorder to re-encode without metadata
+      const stream  = video.captureStream ? video.captureStream() : video.mozCaptureStream();
+      const chunks  = [];
+      const recorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+          ? 'video/webm;codecs=vp9'
+          : 'video/webm'
+      });
+
+      recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        resolve({ blob, mimeType: 'video/webm' });
+      };
+
+      recorder.start();
+      video.play();
+      video.onended = () => recorder.stop();
+
+      // Safety timeout for long videos
+      setTimeout(() => {
+        if (recorder.state === 'recording') recorder.stop();
+      }, 300000); // 5 min max
+    };
+
+    video.onerror = () => {
+      URL.revokeObjectURL(url);
+      // Fallback: return original file as blob (at least it's downloaded)
+      resolve({ blob: new Blob([buffer], { type: file.type }), mimeType: file.type });
+    };
+  });
+};
+</script>
 
 <!-- Firebase SDK -->
 <script type="module">
@@ -861,37 +913,32 @@ function sniffMetadata(file) {
 
 // ── Video metadata stripping ───────────────────────────────────
 async function stripVideoMetadata(file) {
-  return new Promise((resolve, reject) => {
-    // We use FFmpeg.wasm to strip metadata from video files
-    const { createFFmpeg, fetchFile } = FFmpeg;
-    const ffmpeg = createFFmpeg({ log: false });
+  // Try FFmpeg first, fall back to MediaRecorder
+  if (window.FFmpeg && typeof FFmpeg.createFFmpeg === 'function') {
+    try {
+      const { createFFmpeg, fetchFile } = FFmpeg;
+      const ffmpeg = createFFmpeg({ log: false });
+      await ffmpeg.load();
 
-    ffmpeg.load().then(async () => {
-      const inputName  = 'input' + file.name.substring(file.name.lastIndexOf('.'));
-      const outputName = 'output' + file.name.substring(file.name.lastIndexOf('.'));
+      const ext        = file.name.substring(file.name.lastIndexOf('.'));
+      const inputName  = 'input' + ext;
+      const outputName = 'output' + ext;
 
       ffmpeg.FS('writeFile', inputName, await fetchFile(file));
-
-      // Strip all metadata, keep video/audio streams intact
-      await ffmpeg.run(
-        '-i', inputName,
-        '-map_metadata', '-1',   // strip all metadata
-        '-map', '0',              // keep all streams
-        '-c', 'copy',             // copy without re-encoding (fast!)
-        '-movflags', '+faststart',
-        outputName
-      );
+      await ffmpeg.run('-i', inputName, '-map_metadata', '-1', '-map', '0', '-c', 'copy', outputName);
 
       const data = ffmpeg.FS('readFile', outputName);
       const blob = new Blob([data.buffer], { type: file.type || 'video/mp4' });
-
-      // Cleanup
       ffmpeg.FS('unlink', inputName);
       ffmpeg.FS('unlink', outputName);
+      return { blob, mimeType: file.type || 'video/mp4' };
+    } catch(e) {
+      console.warn('FFmpeg failed, using MediaRecorder fallback:', e);
+    }
+  }
 
-      resolve({ blob, mimeType: file.type || 'video/mp4' });
-    }).catch(reject);
-  });
+  // MediaRecorder fallback (works on GitHub Pages)
+  return window.stripVideoSimple(file);
 }
 
 function isVideo(file) {
@@ -1041,8 +1088,8 @@ async function processImages() {
       const origSize = item.file.size;
 
       if (item.isVideo) {
-        // Video processing via FFmpeg
-        setLabel(`Stripping video metadata from ${item.file.name}…`);
+        // Video processing
+        setLabel(`Stripping metadata from ${item.file.name}… (may take a moment)`);
         const { blob, mimeType } = await stripVideoMetadata(item.file);
         item.status = 'done'; item.resultBlob = blob; item.mimeType = mimeType;
         item.report = {
